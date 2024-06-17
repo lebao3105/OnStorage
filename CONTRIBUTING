@@ -1,0 +1,13 @@
+## Translations
+
+Go to lib/l10n.
+
+Now you create a new translation copied from the English translation (app_en.arb, name to be changed?) - if the translation does not exist, or use existing one (don't override the content!).
+
+Name it ```app_<your language code>```.
+
+Now modify the translation string, as well as their description and context if any (you can add if you feel it's required).
+
+A critical note: Each section of the text (e.g for home screen, Settings sections) are separated by a line (that has no visible character but tabs/spaces if any). KEEP THAT to not mess everyone's eyes.
+
+Save and push it to production (test before you do that).
