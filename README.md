@@ -1,6 +1,8 @@
 # Swifile
 
-> Put logo here... TODO
+<div style="align: center">
+	<img src="logo.svg"/></img>
+</div>
 
 A file manager written in Dart with Flutter toolkit. It offers (TODOs included):
 
@@ -27,3 +29,11 @@ Install: `flutter install`
 Generate translations (temporary disabled due to generated file could not be found by Flutter): `flutter gen-l10n`
 
 For more specific options and notes run desired command with `--help` argument.
+
+# Licenses
+
+The license for this project is [here](LICENSE).
+
+The license for Ubuntu font is [here](fonts/UFL.txt).
+
+All other used softwares, dependencies have their licenses placed in Settings -> About -> Licenses.

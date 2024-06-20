@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 // import 'package:flutter_localizations/flutter_localizations.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,7 +71,7 @@ class _MainApp extends State<MainApp> {
 			builder: (ctx, w) => Directionality(
 				textDirection: TextDirection.ltr,
 				child: w!
-			)
+			),
 			// localizationsDelegates: const [
 			// 	AppLocalizations.delegate,
 			// 	GlobalMaterialLocalizations.delegate
@@ -162,7 +163,7 @@ class MainApp extends StatefulWidget
   _MainApp createState() => _MainApp();
 }
 
-void main() async {
+Future<void> main() async {
 	WidgetsFlutterBinding.ensureInitialized();
 	
 	// ask for storage permission
