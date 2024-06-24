@@ -1,4 +1,4 @@
-# Swifile
+# OnStorage
 
 <div style="align: center">
 	<img src="logo.svg"/></img>
