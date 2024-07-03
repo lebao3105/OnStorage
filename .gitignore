@@ -46,3 +46,6 @@ app.*.map.json
 *Helper*
 a.*
 !RootHelper/Helper.cpp
+
+# No web version for now
+web/
