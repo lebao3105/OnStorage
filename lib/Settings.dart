@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' show Scaffold, AppBar, showLicensePage;
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:swifile/Utilities.dart';
+import 'package:onstorage/Utilities.dart';
 import 'package:go_router/go_router.dart';
 
 class LanguagesPage extends StatelessWidget
@@ -37,47 +39,47 @@ class LanguagesPage extends StatelessWidget
 			);
 		}
 
-		return ScaffoldPage.scrollable(
-			header: AppBar(title: createText('Languages')),
-			children: [
-				AutoSuggestBox<String>(
-					items: List.generate(lang_codes.length, (i) {
-						return AutoSuggestBoxItem(
-							value: lang_codes[i], label: langs[i]
-						);
-					})
-				),
-
-				Expanded(
-					child: ListView.builder(
-						shrinkWrap: true,
-						itemCount: langs.length,
-						itemBuilder: (context, index) {
-							return ListTile.selectable(
-								title: Text(langs[index]),
-								selected: selectedIdx == index,
-								selectionMode: ListTileSelectionMode.single,
-								onSelectionChange: (_) async { await prefs.setInt('selectedLanguage', index); }
+		return Scaffold(
+			appBar: AppBar(title: createBoldText('Languages', null)),
+			body: Column(
+				children: [
+					AutoSuggestBox<String>(
+						items: List.generate(lang_codes.length, (i) {
+							return AutoSuggestBoxItem(
+								value: lang_codes[i], label: langs[i]
 							);
-						}
+						})
+					),
+
+					Expanded(
+						child: ListView.builder(
+							shrinkWrap: true,
+							itemCount: langs.length,
+							itemBuilder: (ctxt, index) {
+								return ListTile.selectable(
+									title: Text(langs[index]),
+									selected: selectedIdx == index,
+									selectionMode: ListTileSelectionMode.single,
+									onSelectionChange: (_) async { await prefs.setInt('selectedLanguage', index); }
+								);
+							}
+						)
 					)
-				)
-			]
+				]
+			)
 		);
 	}
 }
 
 class SettingsPage extends StatelessWidget
 {
-	const SettingsPage({super.key});
 
 	@override
 	Widget build(BuildContext context)
 	{
 		return Scaffold(
-			appBar: AppBar(title: const Text('Settings')),
+			appBar: AppBar(title: createBoldText('Settings', null)),
 			body: SettingsList(
-				platform: DevicePlatform.device,
 				sections: [
 					SettingsSection(
 						title: const Text('General'),
@@ -89,20 +91,25 @@ class SettingsPage extends StatelessWidget
 									ctxt.push('/settings/languages');
 								},
 								trailing: const Icon(FluentIcons.arrow_up_right)
+							),
+							SettingsTile.navigation(
+								title: createText('Personalization', null),
+								leading: const Icon(FluentIcons.personalize),
+								trailing: const Icon(FluentIcons.arrow_up_right)
 							)
 						]
 					),
 					SettingsSection(
-						title: const Text('About'),
+						title: createText('About', null),
 						tiles: <SettingsTile>[
 							SettingsTile.navigation(
-								title: const Text('About this app'),
+								title: createText('About this app', null),
 								leading: const Icon(FluentIcons.info),
 								trailing: const Icon(FluentIcons.arrow_up_right),
 								onPressed: (ctxt) {
 									showDialog(
 										context: ctxt,
-										builder: (ctxt) => ContentDialog(
+										builder: (ctxt2) => ContentDialog(
 											title: const Text('About this app'),
 											content: const Column(
 												mainAxisSize: MainAxisSize.min,
@@ -113,16 +120,18 @@ class SettingsPage extends StatelessWidget
 												]
 											),
 											actions: [
-												Button(
-													child: const Text('Licenses'),
-													onPressed: () => showLicensePage(context: ctxt, useRootNavigator: true)
-												),
-												Button(child: const Text('Soruce code'), onPressed: () {}),
-												FilledButton(child: const Text('Close'), onPressed: () => Navigator.pop(ctxt))
+												Button(child: const Text('Source code'), onPressed: () {}),
+												FilledButton(child: const Text('Close'), onPressed: () => context.pop())
 											]
 										)
 									);
 								},
+							),
+							SettingsTile.navigation(
+								title: createText('Licenses', null),
+								leading: const Icon(FluentIcons.bookmarks),
+								trailing: const Icon(FluentIcons.arrow_up_right),
+								onPressed: (ctxt) => showLicensePage(context: ctxt, useRootNavigator: true)
 							)
 						]
 					)

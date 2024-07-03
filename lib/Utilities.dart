@@ -4,51 +4,72 @@ import 'package:shared_preferences/shared_preferences.dart' show SharedPreferenc
 
 const ver = 1.0;
 
-Text createText(String text)
+Text createText(String text, double? size)
 {
-	return Text(text, style: const TextStyle(fontFamily: 'Ubuntu'));
+	return Text(text, style: TextStyle(fontFamily: 'Ubuntu', fontSize: size));
 }
 
-Text createBoldText(String text)
+Text createBoldText(String text, double? size)
 {
-	return Text(text, style: const TextStyle(fontFamily: 'Ubuntu', fontWeight: FontWeight.bold));
+	return Text(text, style: TextStyle(fontFamily: 'Ubuntu', fontWeight: FontWeight.bold, fontSize: size));
 }
 
-Text createMonoText(String text)
+Text createMonoText(String text, double? size)
 {
-	return Text(text, style: const TextStyle(fontFamily: 'UbuntuMono'));
+	return Text(text, style: TextStyle(fontFamily: 'UbuntuMono', fontSize: size));
 }
 
-Text createBoldMonoText(String text)
+Text createBoldMonoText(String text, double? size)
 {
-	return Text(text, style: const TextStyle(fontFamily: 'UbuntuMono', fontWeight: FontWeight.bold));
+	return Text(text, style: TextStyle(fontFamily: 'UbuntuMono', fontWeight: FontWeight.bold, fontSize: size));
 }
 
 Widget emptyList()
 {
 	return Center(
 		child: Column(
-			mainAxisAlignment: MainAxisAlignment.end,
+			mainAxisAlignment: MainAxisAlignment.center,
 			children: [
 				const Icon(FluentIcons.field_empty),
-				createBoldMonoText('It\'s empty here.')
+				createBoldMonoText('It\'s empty here.', 25)
 			],
 		)
 	);
 }
 
 String? homePath() {
-	if (Platform.isLinux || Platform.isMacOS) {
-		return Platform.environment['HOME'];
-	} else if (Platform.isIOS) {
+	if (Platform.isIOS) {
 		return "/var/mobile"; // welp a year with jailbroken iOS lol
 	} else if (Platform.isWindows) {
 		return Platform.environment['USERPROFILE'];
 	}
-	return null; // TODO
+	return Platform.environment['HOME'];
 }
 
-Future<bool> pathIsDir(String path) async { return ! await FileSystemEntity.isFile(path); }
+Future<bool> pathIsDir(String path) async { return await FileSystemEntity.isDirectory(path); }
+
+bool showDirBar = false;
+late String currDir;
+
+Map<String, String> availableHomeDirs() {
+	final home = homePath() ?? '/home';
+	var ret = {
+		"$home/Documents": "document",
+		"$home/Music": "music_note",
+		"$home/Pictures": "picture",
+		"$home/Videos": "video",
+		"$home/Desktop": "t_v_monitor",
+		"$home/Public": "people",
+		"$home/Templates": "file_template"
+	};
+
+	ret.forEach((key, value) async {
+		final check = await pathIsDir(key);
+		if (!check) ret.remove(key);
+	});
+
+	return ret;
+}
 
 /*
  *
@@ -69,4 +90,9 @@ List<String> copyQueue = [];
 List<String> moveQueue = [];
 List<String> delQueue = [];
 
+/*
+ * Pinned/favourites
+ */
 
+late List<String> pinned;
+late List<String> favourites;

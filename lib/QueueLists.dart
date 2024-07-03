@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' show AppBar;
-import 'package:swifile/Utilities.dart';
+import 'package:flutter/material.dart' show AppBar, Scaffold;
+import 'package:onstorage/Utilities.dart';
 
 enum QueueType {
 	Copy,
@@ -29,11 +29,9 @@ class _QueueList extends State<QueueList>
 	{
 		final targetList = findTarget();
 
-		return ScaffoldPage.scrollable(
-			header: AppBar(
-				title: Text(type.name)
-			),
-			children: [
+		return Scaffold(
+			appBar: AppBar(title: createBoldText(type.name, null)),
+			body:
 				Expanded(
 					child: targetList.isEmpty ? emptyList() : ListView.builder(
 						shrinkWrap: true,
@@ -49,7 +47,6 @@ class _QueueList extends State<QueueList>
 						}
 					)
 				)
-			]
 		);
 	}
 }
