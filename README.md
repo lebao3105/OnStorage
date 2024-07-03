@@ -14,6 +14,8 @@ A file manager written in Dart with Flutter toolkit. It offers (TODOs included):
 
 * Ability to switch between list view and tree view (on work, it sucks)
 
+* Tabbed
+
 ## Build from source
 
 Install Flutter & a C++ 17-compatible compiler, as well as make.
