@@ -1,12 +1,8 @@
 # OnStorage
 
-<div style="align: center">
-	<img src="logo.svg"/></img>
-</div>
-
 A file manager written in Dart with Flutter toolkit. It offers (TODOs included):
 
-* WinUI 3 user interface (customized Material You toolkit)
+* WinUI 3 style
 
 * Queue lists for Copy, Move and Pernament Delete (Trash)!
 
@@ -16,21 +12,46 @@ A file manager written in Dart with Flutter toolkit. It offers (TODOs included):
 
 * Tabbed
 
-## Build from source
+## Build and run from source
 
 Install Flutter & a C++ 17-compatible compiler, as well as make.
 
 Clone this repository, run one or more of the following:
 
-Build: `flutter build`
+Build: `make build`
 
-Run: `flutter run`
+Clean: `make clean`
 
-Install: `flutter install`
+Run: `make run`
 
-Generate translations (temporary disabled due to generated file could not be found by Flutter): `flutter gen-l10n`
+Generate icons for all supported platforms: `make gen_icons`
 
-For more specific options and notes run desired command with `--help` argument.
+Generate localizations: `flutter gen_l10n`
+
+Modifiable environment variables:
+
+<table>
+	<tr>
+		<th>Name</th>
+		<th>Usage</th>
+	</tr>
+	<tr>
+		<td>FFLAGS</td>
+		<td>Flutter build flags. Default specifies the build target</td>
+	</tr>
+	<tr>
+		<td>RFLAGS</td>
+		<td>Flutter run flags. Default specifies the target device</td>
+	</tr>
+	<tr>
+		<td>TARGET</td>
+		<td>Flutter build target.</td>
+	</tr>
+	<tr>
+		<td>Device</td>
+		<td>Target device id (run flutter devices to obtain)</td>
+	</tr>
+</table>
 
 # Licenses
 

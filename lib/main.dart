@@ -1,13 +1,16 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:fluent_ui/fluent_ui.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:system_theme/system_theme.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:go_router/go_router.dart' show GoRoute, GoRouter, GoRouterHelper;
+import 'package:go_router/go_router.dart';
 
 import 'package:onstorage/Home.dart';
 import 'package:onstorage/QueueLists.dart';
@@ -15,7 +18,6 @@ import 'package:onstorage/Settings.dart';
 import 'package:onstorage/DirView.dart';
 import 'package:onstorage/Utilities.dart';
 
-import 'package:system_theme/system_theme.dart';
 
 final _router = GoRouter(
 	routes: [
@@ -63,7 +65,7 @@ class MainApp extends StatelessWidget {
 		final accolor = SystemTheme.accentColor.accent.toAccentColor();
 	
 		return FluentApp.router(
-			title: "Swifile",
+			title: "OnStorage",
 			debugShowCheckedModeBanner: true,
 			routerConfig: _router,
 			
@@ -75,11 +77,13 @@ class MainApp extends StatelessWidget {
 				textDirection: TextDirection.ltr,
 				child: w!
 			),
-			// localizationsDelegates: const [
-			// 	AppLocalizations.delegate,
-			// 	GlobalMaterialLocalizations.delegate
-			// ],
-			// supportedLocales: AppLocalizations.supportedLocales
+			localizationsDelegates: const [
+				AppLocalizations.delegate,
+				GlobalMaterialLocalizations.delegate,
+				GlobalWidgetsLocalizations.delegate,
+				FluentLocalizations.delegate
+			],
+			supportedLocales: AppLocalizations.supportedLocales
 		);
 	}
 }
@@ -87,60 +91,60 @@ class MainApp extends StatelessWidget {
 
 class _NavView extends State<NavView>
 {
-	
-	final footerItems = [
-		PaneItem(
-			icon: const Icon(FluentIcons.settings),
-			title: const Text('Settings'),
-			body: SettingsPage()
-		)
-	];
-
-	final navItems = [
-		PaneItem(
-			icon: const Icon(FluentIcons.home),
-			title: const Text('Home'),
-			body: HomePage()
-		),
-		PaneItem(
-			icon: const Icon(FluentIcons.folder),
-			title: const Text('Folder'),
-			body: DirView(path: homePath() ?? "/home")
-		),
-		PaneItemHeader(header: const Text('Queue lists')),
-		PaneItem(
-			icon: const Icon(FluentIcons.copy),
-			title: const Text('Copy'),
-			body: const QueueList(type: QueueType.Copy),
-			infoBadge: InfoBadge(source: Text(copyQueue.length.toString()))
-		),
-
-		PaneItem(
-			icon: const Icon(FluentIcons.move),
-			title: const Text('Move'),
-			body: const QueueList(type: QueueType.Move),
-			infoBadge: InfoBadge(source: Text(moveQueue.length.toString()))
-		),
-
-		PaneItem(
-			icon: const Icon(FluentIcons.delete),
-			title: const Text('Delete'),
-			body: const QueueList(type: QueueType.Delete),
-			infoBadge: InfoBadge(source: Text(delQueue.length.toString()))
-		)
-	];
-
-	int selectedIdx = 0;
 
 	@override
 	Widget build(BuildContext context)
 	{
+		final loc = AppLocalizations.of(context)!;
+
+		final footerItems = [
+			PaneItem(
+				icon: const Icon(FluentIcons.settings),
+				title: createText(loc.settings),
+				body: SettingsPage()
+			)
+		];
+
+		final navItems = [
+			PaneItem(
+				icon: const Icon(FluentIcons.home),
+				title: createText(loc.home),
+				body: HomePage()
+			),
+			PaneItem(
+				icon: const Icon(FluentIcons.folder),
+				title: createText('Folder'),
+				body: const DirView()
+			),
+			PaneItemHeader(header: createText(loc.queue)),
+			PaneItem(
+				icon: const Icon(FluentIcons.copy),
+				title: createText(loc.copy),
+				body: const QueueList(type: QueueType.Copy),
+				infoBadge: InfoBadge(source: Text(copyQueue.length.toString()))
+			),
+
+			PaneItem(
+				icon: const Icon(FluentIcons.move),
+				title: createText(loc.move),
+				body: const QueueList(type: QueueType.Move),
+				infoBadge: InfoBadge(source: Text(moveQueue.length.toString()))
+			),
+
+			PaneItem(
+				icon: const Icon(FluentIcons.delete),
+				title: createText(loc.trash),
+				body: const QueueList(type: QueueType.Delete),
+				infoBadge: InfoBadge(source: Text(delQueue.length.toString()))
+			)
+		];
+
 		return NavigationView(
 			appBar: NavigationAppBar(
 				title: Column( // is this the longest title bar ever?
 					mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 					children: [
-						CommandBar(
+						showDirBar ? CommandBar(
 							overflowBehavior: CommandBarOverflowBehavior.dynamicOverflow,
 							primaryItems: [
 								CommandBarBuilderItem(
@@ -154,7 +158,7 @@ class _NavView extends State<NavView>
 											await showDialog(
 												context: context,
 												builder: (_) => ContentDialog(
-													title: createText('Create a new thing', null),
+													title: createText('Create a new thing'),
 													content: Column(
 														mainAxisSize: MainAxisSize.min,
 														children: [
@@ -169,14 +173,14 @@ class _NavView extends State<NavView>
 													),
 													actions: [
 														Button(
-															child: createText('New file', null),
+															child: createText('New file'),
 															onPressed: () {},
 														),
 														Button(
-															child: createText('New folder', null),
+															child: createText('New folder'),
 															onPressed: () {},
 														),
-														FilledButton(child: createText('Cancel', null), onPressed: () => context.pop())
+														FilledButton(child: createText('Cancel'), onPressed: () => context.pop())
 													]
 												)
 											);
@@ -232,19 +236,19 @@ class _NavView extends State<NavView>
 								
 								const CommandBarSeparator(),
 
-								// CommandBarBuilderItem(
-								// 	builder: (ctx, mode, w) => Tooltip(
-								// 		message: "Item listing option (currently is ${useTree ? 'tree' : 'list'})",
-								// 		child: w
-								// 	),
-								// 	wrappedItem: CommandBarButton(
-								// 		icon: Icon(useTree ? FluentIcons.bulleted_tree_list : FluentIcons.list),
-								// 		label: const Text('Listing'),
-								// 		onPressed: () => setState(() {useTree = !useTree;})
-								// 	)
-								// )
+								CommandBarBuilderItem(
+									builder: (ctx, mode, w) => Tooltip(
+										message: "Item listing option (currently is ${isUsingTree ? 'tree' : 'list'})",
+										child: w
+									),
+									wrappedItem: CommandBarButton(
+										icon: Icon(isUsingTree ? FluentIcons.bulleted_tree_list : FluentIcons.list),
+										label: const Text('Listing'),
+										onPressed: () => setState(() {isUsingTree = !isUsingTree;})
+									)
+								)
 							]
-						)
+						) : const SizedBox.shrink()
 					]
 				)
 			),
@@ -252,10 +256,8 @@ class _NavView extends State<NavView>
 				displayMode: PaneDisplayMode.auto,
 				footerItems: footerItems,
 				items: navItems,
-				selected: selectedIdx,
-				onChanged: (index) {
-					setState(() => selectedIdx = index);
-				}
+				selected: navSelectedIdx,
+				onChanged: (index) { setState(() => navSelectedIdx = index); }
 			)
 		);
 	}
@@ -272,6 +274,12 @@ class NavView extends StatefulWidget
 Future<void> main() async {
 	WidgetsFlutterBinding.ensureInitialized();
 	SystemTheme.accentColor.load();
+
+	final process = await Process.start(helperPath, []);
+	await process.stdout.transform(utf8.decoder).forEach(stdardout.add);
+
+	print(stdardout.join('\n'));
+	stdardout.clear();
 	
 	// ask for storage permission
 	await Permission.storage.request();

@@ -14,5 +14,10 @@
     },
 
     "settings_about": "About",
-    "about_title": "About this app"
+    "about_title": "About this app",
+
+    "copy": "Copy",
+    "queue": "Queue lists",
+    "move": "Move",
+    "trash": "Trash"
 }

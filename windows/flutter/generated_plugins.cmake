@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  disks_desktop
   permission_handler_windows
   system_theme
   url_launcher_windows

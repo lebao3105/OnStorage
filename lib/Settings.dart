@@ -7,6 +7,8 @@ import 'package:settings_ui/settings_ui.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:onstorage/Utilities.dart';
 import 'package:go_router/go_router.dart';
+import 'package:system_theme/system_theme.dart';
+import 'package:url_launcher/link.dart';
 
 class LanguagesPage extends StatelessWidget
 {
@@ -40,7 +42,7 @@ class LanguagesPage extends StatelessWidget
 		}
 
 		return Scaffold(
-			appBar: AppBar(title: createBoldText('Languages', null)),
+			appBar: AppBar(title: createBoldText('Languages')),
 			body: Column(
 				children: [
 					AutoSuggestBox<String>(
@@ -93,34 +95,40 @@ class SettingsPage extends StatelessWidget
 								trailing: const Icon(FluentIcons.arrow_up_right)
 							),
 							SettingsTile.navigation(
-								title: createText('Personalization', null),
+								title: createText('Personalization'),
 								leading: const Icon(FluentIcons.personalize),
 								trailing: const Icon(FluentIcons.arrow_up_right)
 							)
 						]
 					),
+
 					SettingsSection(
-						title: createText('About', null),
+						title: createText('About'),
 						tiles: <SettingsTile>[
 							SettingsTile.navigation(
-								title: createText('About this app', null),
+								title: createText('About this app'),
 								leading: const Icon(FluentIcons.info),
 								trailing: const Icon(FluentIcons.arrow_up_right),
 								onPressed: (ctxt) {
 									showDialog(
 										context: ctxt,
 										builder: (ctxt2) => ContentDialog(
-											title: const Text('About this app'),
-											content: const Column(
+											title: createBoldText('About this app'),
+											content: Column(
 												mainAxisSize: MainAxisSize.min,
 												children: [
-													Text('Swifile'),
-													Text('Version $ver'),
-													Text('Build date: ')
+													Text(
+													'''
+													OnStorage version $ver\n
+													C++ helper: ${stdardout.join('\n')}
+													'''),
 												]
 											),
 											actions: [
-												Button(child: const Text('Source code'), onPressed: () {}),
+												Link(
+													uri: Uri.parse('https://github.com/lebao3105/onstorage'),
+													builder: (ctxt, open) { return HyperlinkButton(child: createText('Source code'), onPressed: open); }
+												),
 												FilledButton(child: const Text('Close'), onPressed: () => context.pop())
 											]
 										)
@@ -128,7 +136,7 @@ class SettingsPage extends StatelessWidget
 								},
 							),
 							SettingsTile.navigation(
-								title: createText('Licenses', null),
+								title: createText('Licenses'),
 								leading: const Icon(FluentIcons.bookmarks),
 								trailing: const Icon(FluentIcons.arrow_up_right),
 								onPressed: (ctxt) => showLicensePage(context: ctxt, useRootNavigator: true)

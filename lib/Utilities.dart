@@ -1,25 +1,26 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'dart:io' show FileSystemEntity, Platform;
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
+import 'package:path/path.dart' as p;
 
 const ver = 1.0;
 
-Text createText(String text, double? size)
+Text createText(String text, [double? size])
 {
 	return Text(text, style: TextStyle(fontFamily: 'Ubuntu', fontSize: size));
 }
 
-Text createBoldText(String text, double? size)
+Text createBoldText(String text, [double? size])
 {
 	return Text(text, style: TextStyle(fontFamily: 'Ubuntu', fontWeight: FontWeight.bold, fontSize: size));
 }
 
-Text createMonoText(String text, double? size)
+Text createMonoText(String text, [double? size])
 {
 	return Text(text, style: TextStyle(fontFamily: 'UbuntuMono', fontSize: size));
 }
 
-Text createBoldMonoText(String text, double? size)
+Text createBoldMonoText(String text, [double? size])
 {
 	return Text(text, style: TextStyle(fontFamily: 'UbuntuMono', fontWeight: FontWeight.bold, fontSize: size));
 }
@@ -30,7 +31,7 @@ Widget emptyList()
 		child: Column(
 			mainAxisAlignment: MainAxisAlignment.center,
 			children: [
-				const Icon(FluentIcons.field_empty),
+				const Icon(FluentIcons.inbox),
 				createBoldMonoText('It\'s empty here.', 25)
 			],
 		)
@@ -42,14 +43,11 @@ String? homePath() {
 		return "/var/mobile"; // welp a year with jailbroken iOS lol
 	} else if (Platform.isWindows) {
 		return Platform.environment['USERPROFILE'];
+	} else if (Platform.isAndroid) {
+		return '/storage/emulated/0'; // FIXME
 	}
 	return Platform.environment['HOME'];
 }
-
-Future<bool> pathIsDir(String path) async { return await FileSystemEntity.isDirectory(path); }
-
-bool showDirBar = false;
-late String currDir;
 
 Map<String, String> availableHomeDirs() {
 	final home = homePath() ?? '/home';
@@ -70,6 +68,16 @@ Map<String, String> availableHomeDirs() {
 
 	return ret;
 }
+
+Future<bool> pathIsDir(String path) async { return await FileSystemEntity.isDirectory(path); }
+
+bool showDirBar = false;
+bool isUsingTree = false;
+int navSelectedIdx = 0;
+String currDir = homePath() ?? "/";
+final String helperPath = '${p.dirname(Platform.resolvedExecutable)}/data/flutter_assets/lib/helper/helper';
+
+List<String> stdardout = [];
 
 /*
  *

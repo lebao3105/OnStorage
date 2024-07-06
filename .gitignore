@@ -49,3 +49,6 @@ a.*
 
 # No web version for now
 web/
+
+# Generated translation dart files
+app_localizations*.dart

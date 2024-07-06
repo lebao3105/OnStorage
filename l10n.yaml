@@ -1,3 +1,6 @@
 arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
+# These will place generated dart files in lib/l10n
+synthetic-package: false
+output-dir: lib/l10n

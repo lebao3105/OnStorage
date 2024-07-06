@@ -30,7 +30,7 @@ class _QueueList extends State<QueueList>
 		final targetList = findTarget();
 
 		return Scaffold(
-			appBar: AppBar(title: createBoldText(type.name, null)),
+			appBar: AppBar(title: createBoldText(type.name)),
 			body:
 				Expanded(
 					child: targetList.isEmpty ? emptyList() : ListView.builder(

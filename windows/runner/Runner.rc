@@ -95,7 +95,7 @@ BEGIN
             VALUE "InternalName", "onstorage" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 Le Bao Nguyen. All rights reserved." "\0"
             VALUE "OriginalFilename", "onstorage.exe" "\0"
-            VALUE "ProductName", "onstorage" "\0"
+            VALUE "ProductName", "OnStorage" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -15,8 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  intl: ^0.19.0
-  path_provider_android: ^2.2.5
+  intl: any
   settings_ui: ^2.0.2
 
   path: any
@@ -26,6 +25,8 @@ dependencies:
   go_router: ^14.2.0
   system_theme: ^2.3.1
   url_launcher: ^6.3.0
+  disks_desktop: ^1.0.1
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -48,5 +49,14 @@ flutter:
           style: italic
         - asset: fonts/UbuntuMono-Regular.ttf
 
-  # assets:
-  #   - lib/Helper
+  assets:
+    - lib/helper/helper
+
+flutter_launcher_icons:
+  android: true
+  image_path: "logo.png"
+  ios: true
+  windows:
+    generate: true
+  macos:
+    generate: true
