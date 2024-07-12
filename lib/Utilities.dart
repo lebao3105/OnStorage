@@ -1,42 +1,11 @@
+import 'dart:convert';
+
 import 'package:fluent_ui/fluent_ui.dart';
-import 'dart:io' show FileSystemEntity, Platform;
+import 'dart:io' show Directory, File, FileSystemEntity, Platform, Process;
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:path/path.dart' as p;
 
-const ver = 1.0;
-
-Text createText(String text, [double? size])
-{
-	return Text(text, style: TextStyle(fontFamily: 'Ubuntu', fontSize: size));
-}
-
-Text createBoldText(String text, [double? size])
-{
-	return Text(text, style: TextStyle(fontFamily: 'Ubuntu', fontWeight: FontWeight.bold, fontSize: size));
-}
-
-Text createMonoText(String text, [double? size])
-{
-	return Text(text, style: TextStyle(fontFamily: 'UbuntuMono', fontSize: size));
-}
-
-Text createBoldMonoText(String text, [double? size])
-{
-	return Text(text, style: TextStyle(fontFamily: 'UbuntuMono', fontWeight: FontWeight.bold, fontSize: size));
-}
-
-Widget emptyList()
-{
-	return Center(
-		child: Column(
-			mainAxisAlignment: MainAxisAlignment.center,
-			children: [
-				const Icon(FluentIcons.inbox),
-				createBoldMonoText('It\'s empty here.', 25)
-			],
-		)
-	);
-}
+const ver = "0.1.0";
 
 String? homePath() {
 	if (Platform.isIOS) {
@@ -58,7 +27,8 @@ Map<String, String> availableHomeDirs() {
 		"$home/Videos": "video",
 		"$home/Desktop": "t_v_monitor",
 		"$home/Public": "people",
-		"$home/Templates": "file_template"
+		"$home/Templates": "file_template",
+		"$home/Downloads": "download"
 	};
 
 	ret.forEach((key, value) async {
@@ -71,13 +41,64 @@ Map<String, String> availableHomeDirs() {
 
 Future<bool> pathIsDir(String path) async { return await FileSystemEntity.isDirectory(path); }
 
-bool showDirBar = false;
-bool isUsingTree = false;
-int navSelectedIdx = 0;
-String currDir = homePath() ?? "/";
 final String helperPath = '${p.dirname(Platform.resolvedExecutable)}/data/flutter_assets/lib/helper/helper';
 
 List<String> stdardout = [];
+
+class Changes with ChangeNotifier
+{
+	bool _showDirBar = false;
+	bool get showDirBar { return _showDirBar; }
+	set showDirBar(bool value) { _showDirBar = value; notifyListeners(); }
+
+	bool _isUsingTree = false;
+	bool get isUsingTree { return _isUsingTree; }
+	set isUsingTree(bool value) { _isUsingTree = value; notifyListeners(); }
+
+	int _navSelectedIdx = 0;
+	int get navSelectedIdx { return _navSelectedIdx; }
+	set navSelectedIdx(int index) { _navSelectedIdx = index; notifyListeners(); }
+
+	String _currDir = homePath() ?? "/";
+	String get currDir { return _currDir; }
+	set currDir(String where) { _currDir = where; notifyListeners(); }
+}
+
+final Changes changes = Changes();
+
+Future<List<String>> getDirContent(String path) async
+{
+	List<String> result = [];
+	try {
+		final process = await Process.start(helperPath, ['list', path]);
+		await process.stdout.transform(utf8.decoder).forEach((i) {
+			print(i.replaceAll(RegExp('"'), '').replaceAll(RegExp('\n'), '').replaceAll(RegExp('\n'), ''));
+			print('sep');
+			result.add(i);
+		});
+	}
+	catch (e) {
+		final dir = Directory(path);
+
+		result.addAll(
+			await dir.list().map((entity) {
+				return entity.path;
+			}).toList()
+		);
+	}
+	return result;
+}
+
+void createNew(String path, bool isFile)
+async {
+	if (path.isEmpty) return;
+	try {
+		await Process.start(helperPath, [isFile ? 'c' : 'md', path]);
+	} catch (e) {
+		if (isFile) File(path).create(recursive: true);
+		else Directory(path).create(recursive: true);
+	}
+}
 
 /*
  *

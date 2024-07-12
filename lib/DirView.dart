@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide Tooltip, Text, ListTile, ListView;
+import 'package:onstorage/UI/Utilities.dart';
 import 'package:path/path.dart' as p;
 import 'package:onstorage/Utilities.dart';
 
@@ -15,27 +16,8 @@ class DirTreeItem extends TreeViewItem
 					if (item.children.isNotEmpty) return;
 					if (await pathIsDir(where)) return;
 
-					// c++ helper supported platforms
-					// todo: ios and android
-					if (!(Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-						final dir = Directory(where);
-
-						item.children.addAll(
-							await dir.list().map((entity) {
-								return DirTreeItem(where: entity.path);
-							}).toList()
-						);
-					}
-					else {
-						final process = await Process.start(helperPath, ['list', where]);
-						stdardout.clear();
-						await process.stdout.transform(utf8.decoder).forEach((path) {
-								item.children.add(
-									DirTreeItem(where: path)
-								);
-							}
-						);
-					}
+					final contents = await getDirContent(where);
+					item.children.addAll(contents.map((e) => DirTreeItem(where: e)));
 				});
 }
 
@@ -44,30 +26,38 @@ class _DirView extends State<DirView>
 	var _breadcrumbItems = <BreadcrumbItem<int>>[];
 	var _list_items = <ListTile>[];
 	var _tree_items = <DirTreeItem>[];
+	var _selectedItems = [];
 
 	final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
-	_DirView() { _setupItems(); }
+	@override
+	void initState() {
+		super.initState();
+		_setupItems();
+	}
 
-	void _setupItems() async {
+	void _setupItems() async
+	{
 		var num = 0;
 		_breadcrumbItems =
-			p.split(currDir).map((name) {
+			p.split(changes.currDir).map((name) {
 				num++;
 				return BreadcrumbItem(label: createText(name), value: num - 1);
 			}).toList();
 
-		final dir = Directory(currDir);
+		final dirItems = await getDirContent(changes.currDir);
 		
-		_list_items = await dir.list().map((entity) {
-			return ListTile.selectable(title: createText(p.basename(entity.path)), selected: false,
-									   selectionMode: ListTileSelectionMode.multiple,
-									   onPressed: () => setState(() {currDir = entity.path; _setupItems();}), trailing: const Icon(FluentIcons.arrow_up_right),
-									   leading: const Icon(FluentIcons.file_image));
+		_list_items = dirItems.map((entity) {
+			return ListTile.selectable(
+				title: createText(entity),
+				selected: _selectedItems.contains(entity),
+				selectionMode: ListTileSelectionMode.multiple,
+				onPressed: () => setState(() {changes.currDir = entity; _setupItems();}), trailing: const Icon(FluentIcons.arrow_up_right),
+				leading: const Icon(FluentIcons.file_image));
 		}).toList();
 
-		_tree_items = await dir.list().map((entity) {
-			return DirTreeItem(where: entity.path);
+		_tree_items = dirItems.map((entity) {
+			return DirTreeItem(where: entity);
 		}).toList();
 	}
 
@@ -75,19 +65,21 @@ class _DirView extends State<DirView>
 	Widget build(BuildContext context) {
 		return Scaffold(
 			appBar: AppBar(
-				title: BreadcrumbBar<int>(
+				title:
+					BreadcrumbBar<int>(
 						items: _breadcrumbItems,
 						onItemPressed: (item) {
 							setState(() {
 								final idx = item.value;
 								String newpath = "";
 
-								_breadcrumbItems.removeRange(idx, _breadcrumbItems.length);
+								_breadcrumbItems.removeRange(idx + 1, _breadcrumbItems.length);
 
 								for (var item in _breadcrumbItems) {
-									p.join(newpath, (item.label as Text).data);
+									newpath = p.join(newpath, (item.label as Text).data);
 								}
-								currDir = newpath;
+								changes.currDir = newpath;
+
 								_setupItems();
 							});
 						}
@@ -97,7 +89,7 @@ class _DirView extends State<DirView>
 				RefreshIndicator(
 					key: _refreshIndicatorKey,
 					child:  _tree_items.isEmpty ? emptyList() : ( // we can use _tree_items or _list_items for empty check
-							isUsingTree ? TreeView(items: _tree_items, shrinkWrap: true, selectionMode: TreeViewSelectionMode.multiple)
+							changes.isUsingTree ? TreeView(items: _tree_items, shrinkWrap: true, selectionMode: TreeViewSelectionMode.multiple)
 									: ListView.builder(
 											shrinkWrap: true,
 											itemCount: _list_items.length,
@@ -121,7 +113,8 @@ class _DirView extends State<DirView>
 
 class DirView extends StatefulWidget
 {
-	const DirView({super.key});
+	final String where;
+	const DirView({super.key, required this.where});
 
 	@override
 	_DirView createState() => _DirView();

@@ -97,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  console:
+    dependency: transitive
+    description:
+      name: console
+      sha256: e04e7824384c5b39389acdd6dc7d33f3efe6b232f6f16d7626f194f6a01ad69a
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   convert:
     dependency: transitive
     description:
@@ -183,7 +191,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_gen:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: flutter_gen
       sha256: c310ae52c59010e71bcde62d9f3d81221e25b9c16f7f3adf9496dde8480866da
@@ -199,7 +207,7 @@ packages:
     source: hosted
     version: "5.6.0"
   flutter_launcher_icons:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: flutter_launcher_icons
       sha256: "526faf84284b86a4cb36d20a5e45147747b7563d921373d4ee0559c54fcdbcea"
@@ -229,6 +237,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  get_it:
+    dependency: transitive
+    description:
+      name: get_it
+      sha256: d85128a5dae4ea777324730dc65edd9c9f43155c109d5cc0a69cab74139fbac1
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.7.0"
   glob:
     dependency: transitive
     description:
@@ -365,6 +381,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  msix:
+    dependency: "direct dev"
+    description:
+      name: msix
+      sha256: "519b183d15dc9f9c594f247e2d2339d855cf0eaacc30e19b128e14f3ecc62047"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.16.7"
   package_config:
     dependency: transitive
     description:
@@ -501,6 +525,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      sha256: "6ee02c8a1158e6dae7ca430da79436e3b1c9563c8cf02f524af997c201ac2b90"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.9"
   scroll_pos:
     dependency: transitive
     description:
@@ -778,6 +810,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.5.1"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      sha256: "8699323b30da4cdbe2aa2e7c9de567a6abd8a97d9a5c850a3c86dcd0b34bbfbf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.9"
   xdg_directories:
     dependency: transitive
     description:

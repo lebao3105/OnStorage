@@ -2,6 +2,9 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:onstorage/UI/AboutView.dart';
+import 'package:onstorage/UI/LanguagesView.dart';
+import 'package:onstorage/UI/Utilities.dart';
 import 'package:system_theme/system_theme.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,6 +14,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'package:onstorage/Home.dart';
 import 'package:onstorage/QueueLists.dart';
@@ -19,21 +23,41 @@ import 'package:onstorage/DirView.dart';
 import 'package:onstorage/Utilities.dart';
 
 
-final _router = GoRouter(
-	routes: [
-		GoRoute(
-			path: '/',
-			builder: (ctxt, state) => const NavView()
-		),
-		GoRoute(
-			path: '/settings',
-			builder: (ctxt, state) => SettingsPage()
-		),
-		GoRoute(
-			path: '/settings/languages',
-			builder: (ctxt, state) => LanguagesPage()
+	final shellNavKey = GlobalKey<NavigatorState>();
+	final rootNavKey = GlobalKey<NavigatorState>();
+	final _router = GoRouter(routes: [
+		ShellRoute(
+			builder: (_, __, ___) => const NavView(),
+			navigatorKey: shellNavKey,
+			routes: [
+				GoRoute(
+					path: '/',
+					builder: (ctxt, state) { changes.navSelectedIdx = 0; return HomePage(); }
+				),
+				GoRoute(
+					path: '/settings',
+					builder: (ctxt, state) => SettingsPage(),
+				),
+				GoRoute(
+					path: '/settings/languages',
+					builder: (ctxt, state) => LanguagesPage()
+				),
+				GoRoute(
+					path: '/queue',
+					builder: (_, state) => QueueList(type: QueueType.getByString(state.pathParameters['which']!))
+				),
+				GoRoute(
+					path: '/view',
+					builder: (_, state) => DirView(where: state.pathParameters['where'] ?? homePath() ?? '/')
+				),
+				GoRoute(
+					path: '/about',
+					builder: (_, __) => AboutPage()
+				)
+			]
 		)
 	]
+	, navigatorKey: rootNavKey
 );
 
 class MainApp extends StatelessWidget {
@@ -41,24 +65,22 @@ class MainApp extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		if (kIsWeb) {
-			showDialog(
-				context: context,
-				builder: (ctx) => ContentDialog(
-					title: const Text('Ain\'t no way'),
-					content: const Text(
-						'We found you running this application in a browser. You won\'t have any practical things doing that. Understand?'
+			createDialog(
+				context, 'Ain\'t no way',
+				const Text(
+					'We found you running this application in a browser. '
+					'This application is not made to be used here yet.'
+				),
+				[
+					Button(
+						child: const Text('Ok, just let me go around'),
+						onPressed: () { context.pop(); }
 					),
-					actions: [
-						Button(
-							child: const Text('Ok, just let me go around'),
-							onPressed: () { ctx.pop(); }
-						),
-						Button(
-							child: const Text('Quit'),
-							onPressed: () { exit(0); }
-						)
-					]
-				)
+					Button(
+						child: const Text('Quit'),
+						onPressed: () { exit(0); }
+					)
+				]
 			);
 		}
 
@@ -83,7 +105,8 @@ class MainApp extends StatelessWidget {
 				GlobalWidgetsLocalizations.delegate,
 				FluentLocalizations.delegate
 			],
-			supportedLocales: AppLocalizations.supportedLocales
+			supportedLocales: AppLocalizations.supportedLocales,
+			locale: AppLocalizations.supportedLocales[selectedLanguage]
 		);
 	}
 }
@@ -91,7 +114,7 @@ class MainApp extends StatelessWidget {
 
 class _NavView extends State<NavView>
 {
-
+	
 	@override
 	Widget build(BuildContext context)
 	{
@@ -101,7 +124,12 @@ class _NavView extends State<NavView>
 			PaneItem(
 				icon: const Icon(FluentIcons.settings),
 				title: createText(loc.settings),
-				body: SettingsPage()
+				body: SettingsPage(),
+			),
+			PaneItem(
+				icon: const Icon(FluentIcons.info),
+				title: createText(loc.settings_about),
+				body: AboutPage(),
 			)
 		];
 
@@ -114,7 +142,7 @@ class _NavView extends State<NavView>
 			PaneItem(
 				icon: const Icon(FluentIcons.folder),
 				title: createText('Folder'),
-				body: const DirView()
+				body: DirView(where: homePath() ?? '/')
 			),
 			PaneItemHeader(header: createText(loc.queue)),
 			PaneItem(
@@ -139,126 +167,117 @@ class _NavView extends State<NavView>
 			)
 		];
 
-		return NavigationView(
-			appBar: NavigationAppBar(
-				title: Column( // is this the longest title bar ever?
-					mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-					children: [
-						showDirBar ? CommandBar(
-							overflowBehavior: CommandBarOverflowBehavior.dynamicOverflow,
-							primaryItems: [
-								CommandBarBuilderItem(
-									builder: (context, mode, w) => Tooltip(
-										message: "Create something new!",
-										child: w
+		return ListenableBuilder(
+			listenable: changes,
+			builder: (ctxt, _) => NavigationView(
+				appBar: NavigationAppBar(
+          automaticallyImplyLeading: false,
+          leading: null,
+					title: null,
+					actions: WindowCaption(
+						title:
+							changes.showDirBar ? CommandBar(
+								overflowBehavior: CommandBarOverflowBehavior.noWrap,
+								primaryItems: [
+									
+									// Back
+									CommandBarBuilderItem(
+										builder: (_, __, w) => Tooltip(message: 'Go back', child: w),
+										wrappedItem: CommandBarButton(
+											icon: const Icon(FluentIcons.back),
+											onPressed: () {}
+										)
 									),
-									wrappedItem: CommandBarButton(
-										icon: const Icon(FluentIcons.add),
-										onPressed: () async {
-											await showDialog(
-												context: context,
-												builder: (_) => ContentDialog(
-													title: createText('Create a new thing'),
-													content: Column(
+
+									// Forward
+									CommandBarBuilderItem(
+										builder: (_, __, w) => Tooltip(message: 'Go forward', child: w),
+										wrappedItem: CommandBarButton(
+											icon: const Icon(FluentIcons.forward),
+											onPressed: () {}
+										)
+									),
+
+									// Go up
+									CommandBarBuilderItem(
+										builder: (_, __, w) => Tooltip(message: 'Go up', child: w),
+										wrappedItem: CommandBarButton(
+											icon: const Icon(FluentIcons.up),
+											onPressed: () => changes.currDir = "${changes.currDir}/.."
+										)
+									),
+
+									// Refresh
+									CommandBarBuilderItem(
+										builder: (_, __, w) => Tooltip(message: 'Refresh', child: w),
+										wrappedItem: CommandBarButton(
+											icon: const Icon(FluentIcons.back),
+											onPressed: () => setState(() {})
+										)
+									),
+
+									// Create button
+									CommandBarBuilderItem(
+										builder: (_, __, w) => Tooltip(message: "Create something new", child: w),
+										wrappedItem: CommandBarButton(
+											icon: const Icon(FluentIcons.add),
+											onPressed: () {
+												String input = "";
+												createDialog(
+													context, 'Create a new file or folder',
+													Column(
 														mainAxisSize: MainAxisSize.min,
 														children: [
 															InfoLabel(
-																label: 'Enter the name or relative path of new item you want to create.',
-																child: const TextBox(
-																	placeholder: 'Just not a full path... and it must not exist',
-																	expands: false
-																)
+																label: 'Enter the relative path of the new item to be created',
+																child: TextBox(
+																	expands: false, maxLines: null, autocorrect: false,
+																	showCursor: true, autofocus: true, onChanged: (value) => input = value
+																),
 															)
-														],
+														]
 													),
-													actions: [
-														Button(
-															child: createText('New file'),
-															onPressed: () {},
-														),
-														Button(
-															child: createText('New folder'),
-															onPressed: () {},
-														),
+													[
+														Button(child: createText('New file'), onPressed: () => setState(() => createNew(input, true))),
+														Button(child: createText('New folder'), onPressed: () => setState(() => createNew(input, false))),
 														FilledButton(child: createText('Cancel'), onPressed: () => context.pop())
 													]
-												)
-											);
-											setState(() {});
-										},
-									)
-								),
-
-								CommandBarBuilderItem(
-									builder: (context, mode, w) => Tooltip(
-										message: "Delete what is/are currently selected!",
-										child: w
+												);
+											}
+										)
 									),
-									wrappedItem: CommandBarButton(
-										icon: const Icon(FluentIcons.delete),
-										onPressed: () {},
-									)
-								),
-								
-								const CommandBarSeparator(),
 
-								CommandBarBuilderItem(
-									builder: (context, mode, w) => Tooltip(
-										message: "Add to Copy queue",
-										child: w
+									// Delete button
+									CommandBarBuilderItem(
+										builder: (_, __, w) => Tooltip(message: 'Delete selected item(s)', child: w),
+										wrappedItem: CommandBarButton(
+											icon: const Icon(FluentIcons.delete),
+											onPressed: () {}
+										)
 									),
-									wrappedItem: CommandBarButton(
-										icon: const Icon(FluentIcons.copy),
-										onPressed: () {}
-									)
-								),
-								CommandBarBuilderItem(
-									builder: (context, mode, w) => Tooltip(
-										message: "Add to Paste queue",
-										child: w
-									),
-									wrappedItem: CommandBarButton(
-										icon: const Icon(FluentIcons.paste),
-										onPressed: () {}
-									)
-								),
-								
-								const CommandBarSeparator(),
 
-								CommandBarButton(
-									icon: const Icon(FluentIcons.move),
-									onPressed: () {}
-								),
-								CommandBarButton(
-									icon: const Icon(FluentIcons.archive),
-									onPressed: () {}
-								),
-								
-								const CommandBarSeparator(),
+									// The rest goes here...
+								],
+							) : null
+					)
 
-								CommandBarBuilderItem(
-									builder: (ctx, mode, w) => Tooltip(
-										message: "Item listing option (currently is ${isUsingTree ? 'tree' : 'list'})",
-										child: w
-									),
-									wrappedItem: CommandBarButton(
-										icon: Icon(isUsingTree ? FluentIcons.bulleted_tree_list : FluentIcons.list),
-										label: const Text('Listing'),
-										onPressed: () => setState(() {isUsingTree = !isUsingTree;})
-									)
-								)
-							]
-						) : const SizedBox.shrink()
-					]
+					/* End Window Caption - NavigationAppBar [actions] */
+				),
+
+				/* End NavigationAppBar - NavigationView [appBar] */
+
+				pane: NavigationPane(
+					displayMode: PaneDisplayMode.auto,
+					items: navItems,
+					footerItems: footerItems,
+					selected: changes.navSelectedIdx,
+					onChanged: (index) => setState(() => changes.navSelectedIdx = index)
 				)
-			),
-			pane: NavigationPane(
-				displayMode: PaneDisplayMode.auto,
-				footerItems: footerItems,
-				items: navItems,
-				selected: navSelectedIdx,
-				onChanged: (index) { setState(() => navSelectedIdx = index); }
+
+				/* End NavigationPane - NavigationView [pane] */
 			)
+
+			/* End NavigationView */
 		);
 	}
 }
@@ -271,17 +290,35 @@ class NavView extends StatefulWidget
 	State<StatefulWidget> createState() => _NavView();
 }
 
-Future<void> main() async {
+void main() async {
 	WidgetsFlutterBinding.ensureInitialized();
-	SystemTheme.accentColor.load();
+	await SystemTheme.accentColor.load();
 
-	final process = await Process.start(helperPath, []);
-	await process.stdout.transform(utf8.decoder).forEach(stdardout.add);
+	if (Platform.isLinux || Platform.isMacOS || Platform.isWindows)
+	{
+		await windowManager.ensureInitialized();
+		windowManager.waitUntilReadyToShow(
+			const WindowOptions(
+				windowButtonVisibility: false,
+				titleBarStyle: TitleBarStyle.hidden
+			), () async {
+				await windowManager.show();
+				await windowManager.focus();
+			}
+		);
+	}
 
-	print(stdardout.join('\n'));
-	stdardout.clear();
+	try {
+		final process = await Process.start(helperPath, ['a']);
+		await process.stdout.transform(utf8.decoder).forEach(stdardout.add);
+
+		print(stdardout.join(''));
+		// stdardout.clear();
+	} catch (e) {
+		print('Unable to launch helper: ${e.toString()}');
+	}
 	
-	// ask for storage permission
+	// ask for storage permissions
 	await Permission.storage.request();
 	await Permission.manageExternalStorage.request();
 	
@@ -289,8 +326,6 @@ Future<void> main() async {
 	selectedLanguage = (prefs.getInt('selectedLanguage') ?? 0);
 	pinned = (prefs.getStringList('pinned') ?? []);
 	favourites = (prefs.getStringList('favourites') ?? []);
-
-	await SystemTheme.accentColor.load();
 
 	runApp(MainApp());
 }

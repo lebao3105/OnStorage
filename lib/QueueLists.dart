@@ -1,11 +1,31 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show AppBar, Scaffold;
+import 'package:onstorage/UI/Utilities.dart';
 import 'package:onstorage/Utilities.dart';
 
 enum QueueType {
 	Copy,
 	Delete,
-	Move
+	Move;
+
+	static QueueType getByString(String what)
+	{
+		final ret = {
+			"copy": Copy,
+			"delete": Delete,
+			"trash": Delete,
+			"move": Move
+		}[what];
+
+		if (ret == null) {
+			throw Exception(
+				['Invalid query list type: must be one of copy, delete, trash, move.',
+				 'Got $what.']
+			);
+		}
+
+		return ret;
+	}
 }
 
 class _QueueList extends State<QueueList>

@@ -1,11 +1,10 @@
 {
     "[dart]": {
-        "editor.tabSize": 4,
-        "editor.insertSpaces": false,
-        "editor.detectIndentation": false,
-        "editor.suggest.insertMode": "replace",
-        "editor.defaultFormatter": "Dart-Code.dart-code",
-        "editor.inlayHints.enabled": "offUnlessPressed"
+        "editor.tabSize": 2,
+        "editor.insertSpaces": false
     },
-    "dart.useLegacyAnalyzerProtocol": true
+    "files.associations": {
+        "*.sip": "cpp",
+        "filesystem": "cpp"
+    }
 }

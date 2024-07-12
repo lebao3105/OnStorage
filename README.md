@@ -12,6 +12,8 @@ A file manager written in Dart with Flutter toolkit. It offers (TODOs included):
 
 * Tabbed
 
+This project is in very initial state, and objects to change.
+
 ## Build and run from source
 
 Install Flutter & a C++ 17-compatible compiler, as well as make.
@@ -48,10 +50,12 @@ Modifiable environment variables:
 		<td>Flutter build target.</td>
 	</tr>
 	<tr>
-		<td>Device</td>
+		<td>DEVICE</td>
 		<td>Target device id (run flutter devices to obtain)</td>
 	</tr>
 </table>
+
+> Note: Make sure both FFLAG and RFLAGS points to the same build type (debug, release, profile)!
 
 # Licenses
 

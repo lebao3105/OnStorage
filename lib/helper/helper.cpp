@@ -2,28 +2,35 @@
 #include <cstdio>
 #include <fstream>
 #include <cstring>
+#include <iostream>
 
 #ifndef _WIN32
-    #include <unistd.h>
+#   include <unistd.h>
 #endif
 
+void about() {
+    printf("Helper made by Le Bao Nguyen (@lebao3105 on GitHub and GitLab)\n");
+    printf("Write once, run almost everywhere!");
+}
+
 void sendOutThisMessage() {
-    printf("Usage: RootHelper [action] [path]\n");
-    printf("Made by Le Bao Nguyen (@lebao3105 on GitHub and GitLab)\n");
-    printf("Written in C++ and Pascal (2 different versions). Write once, run almost everywhere!\n");
-    printf("(This verison, in fact, mostly uses C things.)\n\n");
+    printf("Usage: helper [action] [path]\n");
+    about();
+    printf("\n\n");
 
     printf("Available [action]s:\n");
+    printf("about / a                                  : About this program\n");
     printf("del / d [path]                             : Deletes [path]\n");
     printf("list / l [path]                            : Shows the content [path]\n");
     printf("create / c [path]                          : Creates [path]\n");
     printf("createdir / md [path]                      : Creates [path] as a directory\n");
     printf("move / mv [path, list must not be odd]     : Moves files and folders\n");
     printf("copy / cp [path, list must not be odd]     : Copies files and folders to another location\n");
-    #ifndef _WIN32
+
+#ifndef _WIN32
     printf("getuid / guid                              : Gets and shows the current UID\n");
     printf("getgid / gid                               : Gets and shows the current GID\n");
-    #endif
+#endif
 
     printf("\n");
     printf("[path] can in any number of absolute paths that the program and system can handle.\n");
@@ -36,7 +43,7 @@ void isMod2Equal0(int argc) {
 }
 
 bool checkArg(char* arg, char* longarg, char* shortarg) {
-    return (strcmp(longarg, arg) == 0 || strcmp(shortarg, arg) == 0);
+    return (strcmp(longarg, arg) == 0) || (strcmp(shortarg, arg) == 0);
 }
 
 void enoughArgs(int argc) {
@@ -49,8 +56,14 @@ void enoughArgs(int argc) {
 int main(int argc, char* argv[]) {
     if (argc == 1) { sendOutThisMessage(); return 0; }
     
+    /* About this program */
+    if (checkArg(argv[1], "about", "a")) {
+        about();
+        return 0;
+    }
+
     /* Removes a file or folder (RECURSIVELY) - use std::filesystem::remove to avoid that */
-    if (checkArg(argv[1], "del", "d")) {
+    else if (checkArg(argv[1], "del", "d")) {
         enoughArgs(argc);
         for (int i = 2; i < argc; ++i)
             std::filesystem::remove_all(argv[i]);
@@ -62,7 +75,7 @@ int main(int argc, char* argv[]) {
         enoughArgs(argc);
         for (int i = 2; i < argc; ++i)
             for (auto const& dir_entry: std::filesystem::directory_iterator{argv[i]})
-                printf("%s\n", dir_entry.path().filename().c_str());
+                std::cout << dir_entry.path().filename().string() << std::endl;
     }
 
     /* Creates a file */
@@ -110,7 +123,7 @@ int main(int argc, char* argv[]) {
     }
 
     // these are not available under Windows.
-    #ifndef _WIN32
+#ifndef _WIN32
     /* Gets UID */
     else if (checkArg(argv[1], "getuid", "guid"))
     {
@@ -122,7 +135,7 @@ int main(int argc, char* argv[]) {
     {
         printf("GID: %d", getgid());
     }
-    #endif
+#endif
 
     else
     {

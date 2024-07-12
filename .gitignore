@@ -45,7 +45,7 @@ app.*.map.json
 # Helper (C++) building outputs
 *Helper*
 a.*
-!RootHelper/Helper.cpp
+!lib/helper/helper.cpp
 
 # No web version for now
 web/

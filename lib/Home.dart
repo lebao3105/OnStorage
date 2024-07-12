@@ -4,6 +4,7 @@ import 'package:disks_desktop/disks_desktop.dart';
 import 'package:flutter/material.dart' show Scaffold, AppBar;
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:onstorage/DirView.dart';
+import 'package:onstorage/UI/Utilities.dart';
 import 'package:onstorage/Utilities.dart';
 import 'package:path/path.dart' as p;
 
@@ -41,14 +42,14 @@ class _DirButton extends State<DirButton> {
 					)
 				]
 			),
-			onPressed: () => setState(() { currDir = path; navSelectedIdx = 1; })
+			onPressed: () { changes.currDir = path; changes.navSelectedIdx = 1; changes.showDirBar = true;}
 		);
 	}
 }
 
 class HomePage extends StatefulWidget {
-  @override
-  _HomePage createState() => _HomePage();
+	@override
+	_HomePage createState() => _HomePage();
 }
 
 class _HomePage extends State<HomePage> {

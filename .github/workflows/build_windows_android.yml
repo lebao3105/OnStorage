@@ -1,0 +1,27 @@
+name: Build release for Windows and Android
+
+on:
+  release:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-actions@v2
+        with:
+          channel: stable
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build for Windows
+        run: dart run msix:create
+      
+      - name: Build for Android
+        run: |
+          flutter build apk
+          flutter build appbundle

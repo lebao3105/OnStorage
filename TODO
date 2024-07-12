@@ -1,0 +1,15 @@
+UI:
+    - Finish UI design
+    - Fix navigation
+    - Add callbacks
+
+Functionality:
+    - Add notifications
+    - Add command line arguments
+    - Add context menu item
+    - Ask for permission on certain actions
+
+Packaging:
+    - Finish configurations in pubspec.yaml
+    - Add Linux packaging
+    - Finish build scripts for GitHub Actions
