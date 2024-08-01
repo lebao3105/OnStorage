@@ -16,17 +16,19 @@ This project is in very initial state, and objects to change.
 
 ## Build and run from source
 
-Install Flutter & a C++ 17-compatible compiler, as well as make.
+Install Flutter as well as make.
 
 Clone this repository, run one or more of the following:
+
+Generate icon for platforms (only need to run once): `make gen_icons`
+
+Generate build informations file: `make gen_infos`
 
 Build: `make build`
 
 Clean: `make clean`
 
 Run: `make run`
-
-Generate icons for all supported platforms: `make gen_icons`
 
 Generate localizations: `flutter gen_l10n`
 

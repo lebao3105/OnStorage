@@ -4,15 +4,21 @@ FFLAGS := $(TARGET)
 # Flutter run flags
 RFLAGS := -d $(DEVICE)
 
+# Project infos
+HOMEPAGE=`git remote get-url --push origin`
+APPVER=`dart run get-app-ver.dart`
+
 .PHONY: build run gen_icons
 
 gen_icons:
 	dart run flutter_launcher_icons
 
-build:
-	$(CXX) lib/helper/helper.cpp -o lib/helper/helper -std=c++17
-	mv lib/helper/helper.exe lib/helper/helper
-	# flutter build $(FFLAGS)
+gen_infos:
+	echo "const HOMEPAGE='$(HOMEPAGE)';" > lib/Infos.dart 2>&1
+	echo "const APPVER='$(APPVER)';" >> lib/Infos.dart 2>&1
 
-run: build
+build:
+	flutter build $(FFLAGS)
+
+run:
 	flutter run $(RFLAGS)
