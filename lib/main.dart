@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:onstorage/UI/AboutView.dart';
@@ -142,7 +141,7 @@ class _NavView extends State<NavView>
 			PaneItem(
 				icon: const Icon(FluentIcons.folder),
 				title: createText('Folder'),
-				body: DirView(where: homePath() ?? '/')
+				body: DirView(where: 'C:\\Windows\\System32')
 			),
 			PaneItemHeader(header: createText(loc.queue)),
 			PaneItem(
@@ -306,16 +305,6 @@ void main() async {
 				await windowManager.focus();
 			}
 		);
-	}
-
-	try {
-		final process = await Process.start(helperPath, ['a']);
-		await process.stdout.transform(utf8.decoder).forEach(stdardout.add);
-
-		print(stdardout.join(''));
-		// stdardout.clear();
-	} catch (e) {
-		print('Unable to launch helper: ${e.toString()}');
 	}
 	
 	// ask for storage permissions

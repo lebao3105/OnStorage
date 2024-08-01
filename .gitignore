@@ -52,3 +52,5 @@ web/
 
 # Generated translation dart files
 app_localizations*.dart
+
+lib/Infos.dart

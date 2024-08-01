@@ -40,25 +40,26 @@ class _DirView extends State<DirView>
 	{
 		var num = 0;
 		_breadcrumbItems =
-			p.split(changes.currDir).map((name) {
-				num++;
-				return BreadcrumbItem(label: createText(name), value: num - 1);
-			}).toList();
+			p.split(changes.currDir).map(
+				(name) => BreadcrumbItem(label: createText(name), value: num++)
+			).toList();
 
 		final dirItems = await getDirContent(changes.currDir);
 		
-		_list_items = dirItems.map((entity) {
-			return ListTile.selectable(
-				title: createText(entity),
-				selected: _selectedItems.contains(entity),
-				selectionMode: ListTileSelectionMode.multiple,
-				onPressed: () => setState(() {changes.currDir = entity; _setupItems();}), trailing: const Icon(FluentIcons.arrow_up_right),
-				leading: const Icon(FluentIcons.file_image));
-		}).toList();
+		_list_items = dirItems.map(
+			(entity) =>
+				ListTile.selectable(
+					title: createText(entity),
+					selected: _selectedItems.contains(entity),
+					selectionMode: ListTileSelectionMode.multiple,
+					onPressed: () => setState(() { changes.currDir = entity; _setupItems(); }),
+					trailing: const Icon(FluentIcons.arrow_up_right),
+					leading: const Icon(FluentIcons.file_image)
+				)
+		).toList();
 
-		_tree_items = dirItems.map((entity) {
-			return DirTreeItem(where: entity);
-		}).toList();
+		_tree_items = dirItems.map((entity) => DirTreeItem(where: entity)).toList();
+		setState(() {});
 	}
 
 	@override
@@ -99,7 +100,7 @@ class _DirView extends State<DirView>
 										)
 						
 					),
-					onRefresh: () async { await Future.delayed(const Duration(seconds: 3)); setState(() {}); },
+					onRefresh: () async { _setupItems(); },
 				),
 			floatingActionButton:
 				FloatingActionButton.extended(

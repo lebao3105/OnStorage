@@ -6,5 +6,6 @@
     "files.associations": {
         "*.sip": "cpp",
         "filesystem": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

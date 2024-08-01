@@ -42,7 +42,7 @@ class _DirButton extends State<DirButton> {
 					)
 				]
 			),
-			onPressed: () { changes.currDir = path; changes.navSelectedIdx = 1; changes.showDirBar = true;}
+			onPressed: () { changes.currDir = path; changes.navSelectedIdx = 1; changes.showDirBar = true; }
 		);
 	}
 }

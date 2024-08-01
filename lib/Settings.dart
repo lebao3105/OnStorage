@@ -6,9 +6,6 @@ import 'package:settings_ui/settings_ui.dart';
 // import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:onstorage/Utilities.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/link.dart';
-import 'package:onstorage/UI/AboutView.dart';
-
 
 
 class SettingsPage extends StatelessWidget
@@ -27,9 +24,7 @@ class SettingsPage extends StatelessWidget
 							SettingsTile.navigation(
 								title: const Text('Languages'),
 								leading: const Icon(FluentIcons.globe),
-								onPressed: (ctxt) {
-									ctxt.push('/settings/languages');
-								},
+								onPressed: (ctxt) => ctxt.push('/settings/languages'),
 								trailing: const Icon(FluentIcons.arrow_up_right)
 							),
 							SettingsTile.navigation(

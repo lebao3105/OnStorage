@@ -1,10 +1,15 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Scaffold, AppBar;
-import 'package:onstorage/UI/Utilities.dart';
-import 'package:onstorage/Utilities.dart';
-import 'package:onstorage/l10n/app_localizations.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:onstorage/UI/Utilities.dart';
+
+import 'package:onstorage/l10n/app_localizations.dart';
+
+import 'package:onstorage/Utilities.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:onstorage/Infos.dart';
 
 class AboutPage extends StatelessWidget
 {
@@ -22,7 +27,7 @@ class AboutPage extends StatelessWidget
 						tiles: [
 							SettingsTile(
 								title: createText('Version'),
-								value: createText(ver),
+								value: createText(APPVER),
 							),
 							SettingsTile(
 								title: createText('Type'),
@@ -31,17 +36,22 @@ class AboutPage extends StatelessWidget
 										kDebugMode ? 'Debug' :
 										kProfileMode ? 'Profile' : 'Release'
 									)
+							),
+							SettingsTile(
+								title: createText('Website'),
+								value: Icon(FluentIcons.arrow_up_right),
+								onPressed: (ctxt) => launchUrl(Uri.parse(HOMEPAGE)),
 							)
 						]
 					),
 
 					SettingsSection(
-						title: createText('HELPER'),
+						title: createText('CREDIT'),
 						tiles: [
 							SettingsTile(
-								title: createText('About'),
-								value: createText(stdardout.join()),
-								description: createText('The text above can be got by adding about / a argument')
+								title: createText('Le Bao Nguyen'),
+								value: createText('Main developer'),
+								onPressed: (ctxt) => launchUrl(Uri.parse('https://github.com/lebao3105')),
 							)
 						]
 					)

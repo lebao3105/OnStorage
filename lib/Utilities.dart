@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:fluent_ui/fluent_ui.dart';
-import 'dart:io' show Directory, File, FileSystemEntity, Platform, Process;
+import 'dart:io' show Directory, File, FileSystemEntity, Platform;
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:path/path.dart' as p;
 
@@ -13,7 +11,7 @@ String? homePath() {
 	} else if (Platform.isWindows) {
 		return Platform.environment['USERPROFILE'];
 	} else if (Platform.isAndroid) {
-		return '/storage/emulated/0'; // FIXME
+		return '/storage/emulated/0';
 	}
 	return Platform.environment['HOME'];
 }
@@ -31,19 +29,13 @@ Map<String, String> availableHomeDirs() {
 		"$home/Downloads": "download"
 	};
 
-	ret.forEach((key, value) async {
-		final check = await pathIsDir(key);
-		if (!check) ret.remove(key);
-	});
+	ret.removeWhere((key, value) => !pathIsDir(key));
 
 	return ret;
 }
 
-Future<bool> pathIsDir(String path) async { return await FileSystemEntity.isDirectory(path); }
-
-final String helperPath = '${p.dirname(Platform.resolvedExecutable)}/data/flutter_assets/lib/helper/helper';
-
-List<String> stdardout = [];
+/// Checks if a path points to a directory.
+bool pathIsDir(String path) => FileSystemEntity.isDirectorySync(path);
 
 class Changes with ChangeNotifier
 {
@@ -59,45 +51,29 @@ class Changes with ChangeNotifier
 	int get navSelectedIdx { return _navSelectedIdx; }
 	set navSelectedIdx(int index) { _navSelectedIdx = index; notifyListeners(); }
 
-	String _currDir = homePath() ?? "/";
+	String _currDir = 'C:\\Windows\\System32';
 	String get currDir { return _currDir; }
 	set currDir(String where) { _currDir = where; notifyListeners(); }
 }
 
 final Changes changes = Changes();
 
-Future<List<String>> getDirContent(String path) async
+List<String> getDirContent(String path)
 {
 	List<String> result = [];
-	try {
-		final process = await Process.start(helperPath, ['list', path]);
-		await process.stdout.transform(utf8.decoder).forEach((i) {
-			print(i.replaceAll(RegExp('"'), '').replaceAll(RegExp('\n'), '').replaceAll(RegExp('\n'), ''));
-			print('sep');
-			result.add(i);
-		});
-	}
-	catch (e) {
-		final dir = Directory(path);
+	final dir = Directory(path);
 
-		result.addAll(
-			await dir.list().map((entity) {
-				return entity.path;
-			}).toList()
-		);
-	}
+	result.addAll(
+		dir.listSync().map((entity) => p.basename(entity.path)).toList()
+	);
 	return result;
 }
 
 void createNew(String path, bool isFile)
-async {
+{
 	if (path.isEmpty) return;
-	try {
-		await Process.start(helperPath, [isFile ? 'c' : 'md', path]);
-	} catch (e) {
-		if (isFile) File(path).create(recursive: true);
-		else Directory(path).create(recursive: true);
-	}
+	if (isFile) File(path).createSync(recursive: true);
+	else Directory(path).createSync(recursive: true);
 }
 
 /*
