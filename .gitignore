@@ -54,3 +54,4 @@ web/
 app_localizations*.dart
 
 lib/Infos.dart
+build/

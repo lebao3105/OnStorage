@@ -47,11 +47,7 @@ class Changes with ChangeNotifier
 	bool get isUsingTree { return _isUsingTree; }
 	set isUsingTree(bool value) { _isUsingTree = value; notifyListeners(); }
 
-	int _navSelectedIdx = 0;
-	int get navSelectedIdx { return _navSelectedIdx; }
-	set navSelectedIdx(int index) { _navSelectedIdx = index; notifyListeners(); }
-
-	String _currDir = 'C:\\Windows\\System32';
+	String _currDir = homePath() ?? '/';
 	String get currDir { return _currDir; }
 	set currDir(String where) { _currDir = where; notifyListeners(); }
 }
@@ -77,18 +73,14 @@ void createNew(String path, bool isFile)
 }
 
 /*
- *
- * Preferences functions, variables
- * 
+ * Preferences functions, variables 
  */
 
 late final SharedPreferences prefs;
-late final int selectedLanguage;
+late String selectedLanguage;
 
 /*
- *
  * Queue lists
- * 
  */
 
 List<String> copyQueue = [];
