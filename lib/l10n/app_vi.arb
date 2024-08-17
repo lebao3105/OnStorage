@@ -6,8 +6,14 @@
     
     "settings_general": "Chung",
     "settings_about": "Về ứng dụng này",
+    "settings_personalization": "Cá nhân hóa",
+    "settings_view": "Xem",
+
+    "item_size": "Độ lớn thư mục/tệp",
 
     "about_title": "Về ứng dụng này",
+
+    "licenses": "Giấy phép",
 
     "copy": "Sao chép",
     "queue": "Danh sách hẹn",

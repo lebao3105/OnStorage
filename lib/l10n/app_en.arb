@@ -1,20 +1,20 @@
 {
     "home": "Home",
-    "@home": {
-        "description": "The home page. Period."
-    },
     
     "settings": "Settings",
 
     "langs": "Languages",
 
     "settings_general": "General",
-    "@settings_general": {
-        "description": "General section in Settings"
-    },
 
     "settings_about": "About",
+    "settings_personalization": "Personalization",
+    "settings_view": "View",
     "about_title": "About this app",
+
+    "item_size": "File/folder size",
+
+    "licenses": "Licenses",
 
     "copy": "Copy",
     "queue": "Queue lists",
