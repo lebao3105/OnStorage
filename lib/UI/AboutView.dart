@@ -1,24 +1,24 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show Scaffold, AppBar;
 import 'package:settings_ui/settings_ui.dart';
-import 'package:onstorage/UI/Utilities.dart';
-
-import 'package:onstorage/l10n/app_localizations.dart';
-
-import 'package:onstorage/Utilities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:onstorage/Infos.dart';
+import 'Utilities.dart';
+import '../l10n/app_localizations.dart';
+import '../Utilities.dart';
+import '../Infos.dart';
 
 class AboutPage extends StatelessWidget
 {
 	@override
-  Widget build(BuildContext context) {
-		
+  Widget build(BuildContext context)
+	{
+		final loc = AppLocalizations.of(context)!;
+	
     return Scaffold(
 			appBar: AppBar(
-				title: createBoldText(AppLocalizations.of(context)!.about_title)
+				title: createBoldText(loc.about_title)
 			),
 			body: SettingsList(
 				sections: [
@@ -39,7 +39,7 @@ class AboutPage extends StatelessWidget
 							),
 							SettingsTile(
 								title: createText('Website'),
-								value: Icon(FluentIcons.arrow_up_right),
+								value: Text('Open link in browser'),
 								onPressed: (ctxt) => launchUrl(Uri.parse(HOMEPAGE)),
 							)
 						]
