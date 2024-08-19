@@ -27,6 +27,7 @@ dependencies:
   go_router: ^14.2.0
   url_launcher: ^6.3.0
   disks_desktop: ^1.0.1
+  flutter_acrylic: ^1.1.4
 
 dev_dependencies:
   flutter_gen: any

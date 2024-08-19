@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' show Scaffold, AppBar, showLicensePage;
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart' as foundation;
 
-import 'package:onstorage/UI/LanguagesView.dart';
+import 'package:onstorage/UI/SettingPages/LanguagesView.dart';
 import 'package:onstorage/UI/Utilities.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -12,9 +12,12 @@ import 'package:go_router/go_router.dart';
 
 enum ViewSizes
 {
-	KBs,
-	MBs,
-	GBS
+	KBs, MBs, GBs
+}
+
+enum ViewListingType
+{
+	List, Grid, Tree
 }
 
 class SettingsPage extends StatelessWidget
@@ -40,7 +43,7 @@ class SettingsPage extends StatelessWidget
 								SettingsTile.navigation(
 									title: Text(loc.langs),
 									leading: const Icon(FluentIcons.globe),
-									onPressed: (ctxt) => context.push('/settings/languages'),
+									onPressed: (ctxt) => ctxt.push('/settings/languages'),
 									trailing: const Icon(FluentIcons.arrow_up_right)
 								),
 								// END LANGUAGES PAGE
@@ -49,7 +52,8 @@ class SettingsPage extends StatelessWidget
 								SettingsTile.navigation(
 									title: createText(loc.settings_personalization),
 									leading: const Icon(FluentIcons.personalize),
-									trailing: const Icon(FluentIcons.arrow_up_right)
+									trailing: const Icon(FluentIcons.arrow_up_right),
+									onPressed: (ctxt) => ctxt.push('/settings/personalizations'),
 								)
 								// END PERSONALIZATION PAGE
 							]
@@ -61,23 +65,36 @@ class SettingsPage extends StatelessWidget
 							tiles: [
 								SettingsTile(
 									title: createText(loc.item_size),
-									trailing: ComboBox(
-										items: [
-											ComboBoxItem(
-												child: Text("MBs"),
-												value: ViewSizes.MBs
-											),
-											ComboBoxItem(
-												child: Text("GBs"),
-												value: ViewSizes.GBS
-											),
-											ComboBoxItem(
-												child: Text("KBs"),
-												value: ViewSizes.KBs,
+									trailing: ComboBox<ViewSizes>(
+										items: ViewSizes.values.map(
+											(e) => ComboBoxItem(
+												child: createText(e.name),
+												value: e
 											)
-										],
+										).toList(),
 										onChanged: (which) {},
 									),
+								),
+
+								SettingsTile(
+									title: createText('Default directory listing type'),
+									trailing: ComboBox<ViewListingType>(
+										items: [
+											ComboBoxItem(
+												child: Text("List"),
+												value: ViewListingType.List
+											),
+											ComboBoxItem(
+												child: Text("Grid"),
+												value: ViewListingType.List
+											),
+											ComboBoxItem(
+												child: Text("Tree"),
+												value: ViewListingType.List
+											),
+										],
+										onChanged: (which) {},
+									)
 								)
 							]
 						),

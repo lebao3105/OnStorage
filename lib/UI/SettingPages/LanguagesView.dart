@@ -20,8 +20,7 @@ class _LanguagesPage extends State<LanguagesPage>
 		/// Supported languages in OnStorage.
 		/// Please keep this sorted alphabetically,
 		/// and up-to-date with the current translations.
-		final
-		Map<String, List<List<String>>>
+		final Map<String, List<List<String>>>
 		supported_languages = {
 			'e': [
 				['English', 'en']

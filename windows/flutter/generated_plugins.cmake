@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   disks_desktop
+  flutter_acrylic
   permission_handler_windows
   screen_retriever
   system_theme

@@ -1,19 +1,22 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
+import 'package:onstorage/UI/SettingPages/PersonalizationsView.dart';
 import 'package:system_theme/system_theme.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-//import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:onstorage/UI/AboutView.dart';
-import 'package:onstorage/UI/LanguagesView.dart';
+import 'package:onstorage/UI/Favourites.dart';
+import 'package:onstorage/UI/SettingPages/LanguagesView.dart';
 import 'package:onstorage/UI/Utilities.dart';
 import 'package:onstorage/UI/Home.dart';
 import 'package:onstorage/UI/QueueLists.dart';
@@ -27,38 +30,73 @@ final rootNavKey = GlobalKey<NavigatorState>();
 final _router = GoRouter(
 	navigatorKey: rootNavKey,
 	initialLocation: '/',
+	// TODO: Rearrange
 	routes: [
-		ShellRoute(
+		StatefulShellRoute.indexedStack(
 			builder: (_, __, child) => NavView(child: child),
-			navigatorKey: shellNavKey,
-			routes: [
-				GoRoute(
-					path: '/',
-					builder: (ctxt, state) => HomePage()
+			// navigatorKey: shellNavKey,
+			branches: [
+				StatefulShellBranch(
+					routes: [
+						GoRoute(
+							path: '/',
+							builder: (ctxt, state) => HomePage()
+						),
+					]
 				),
-				GoRoute(
-					path: '/settings',
-					builder: (ctxt, state) => SettingsPage()
+				StatefulShellBranch(
+					routes: [
+						GoRoute(
+							path: '/view',
+							builder: (_, state) {
+								return DirView(where: state.uri.queryParameters['where'] ?? homePath() ?? '/');
+							}
+						),
+					]
 				),
-				GoRoute(
-					path: '/settings/languages',
-					builder: (ctxt, state) => LanguagesPage()
+				StatefulShellBranch(
+					routes: [
+						GoRoute(
+							path: '/favourites',
+							builder: (_, __) => FavouritesList()
+						),
+					]
 				),
-				GoRoute(
-					path: '/view',
-					builder: (_, state) {
-						return DirView(where: state.uri.queryParameters['where'] ?? homePath() ?? '/');
-					}
+				StatefulShellBranch(
+					routes:
+						QueueType.values.map(
+							(e) => GoRoute(
+								path: '/queue/${e.name.toLowerCase()}',
+								builder: (_, __) => QueueList(type: e))
+						).toList()
 				),
-				GoRoute(
-					path: '/about',
-					builder: (_, __) => AboutPage()
-				)
-			] + QueueType.values.map(
-				(e) => GoRoute(
-					path: '/queue/${e.name.toLowerCase()}',
-					builder: (_, __) => QueueList(type: e))
-			).toList()
+				StatefulShellBranch(
+					routes: [
+						GoRoute(
+							path: '/settings',
+							builder: (ctxt, state) => SettingsPage(),
+							routes: [
+								GoRoute(
+									path: 'languages',
+									builder: (ctxt, state) => LanguagesPage()
+								),
+								GoRoute(
+									path: 'personalizations',
+									builder: (_, __) => PersonalizationsPage()
+								)
+							]
+						),
+					]
+				),
+				StatefulShellBranch(
+					routes: [
+						GoRoute(
+							path: '/about',
+							builder: (_, __) => AboutPage()
+						)
+					]
+				),
+			],
 		)
 	]
 );
@@ -118,7 +156,7 @@ class NavView extends StatefulWidget
 {
 	const NavView({super.key, required this.child});
 
-	final Widget child;
+	final StatefulNavigationShell child;
 
 	@override
 	State<StatefulWidget> createState() => _NavView();
@@ -154,20 +192,34 @@ class _NavView extends State<NavView>
 	int findNavSelectedIndex()
 	{
 		final location = GoRouterState.of(context).uri.toString();
-    final allItems = (navItems + footerItems);
-
-		// Who gives key to a PaneItemHeader?
-		// TODO: Tree on pane (PaneItemExpander or smth)
-		allItems.removeWhere(
-			(item) => (item.key == null)
-		);
+    final allItems =
+			(navItems + footerItems)
+				..removeWhere(
+					(item) {
+						// print('${item.key.toString()} ${item.key == null}');
+						return (item.key == null);
+					}
+				);
 
 		/// Note: Key.toString() returns a weird format like this:
 		/// [<'/view?where=/usr/share/applications'>]
-		
+
     int ret = allItems.indexWhere(
-			(item) => (item.key == Key(location))
-				|| (item.key.toString().startsWith('[<\'/view\'>]'))
+			(item) {
+				// print(location);
+				// print(location.startsWith('/settings'));
+				// print(location.startsWith('/view'));
+				// print(Key(location) == item.key);
+
+				final itemKey = item.key.toString()
+																.replaceFirst('[<\'', '')
+																.replaceFirst('\'>]', '');
+
+				return (item.key == Key(location))
+				|| location.commonPrefixWithAnother(itemKey) == '/view'
+				|| location.commonPrefixWithAnother(itemKey) == '/settings'
+				|| location.commonPrefixWithAnother(itemKey) == '/queue';
+			}
 		);
 
 		return (ret != -1) ? ret : 0;
@@ -189,12 +241,16 @@ class _NavView extends State<NavView>
 			FluentIcons.folder,
 			'/view?where=${changes.currDir}'
 		),
+		createNavPaneItem(
+			'Favourites',
+			FluentIcons.favorite_list,
+			'/favourites',
+			badge: InfoBadge(source: Text(favourites.length.toString()))
+		),
 
-		// Separator below
+		PaneItemSeparator(),
 
 		PaneItemHeader(header: createText(loc.queue)),
-
-		// End separator
 
 		createNavPaneItem(
 			loc.copy,
@@ -225,15 +281,16 @@ class _NavView extends State<NavView>
 			listenable: changes,
 			builder: (ctxt, _) =>
 				NavigationView(
-					appBar: NavigationAppBar(
-						automaticallyImplyLeading: false,
-						leading: null,
-						title: null,
-						actions:
-							(Platform.isLinux || Platform.isMacOS || Platform.isWindows)
-								? WindowCaption()
-								: null
-					),
+					appBar:
+						NavigationAppBar(
+							automaticallyImplyLeading: false,
+							leading: null,
+							title: null,
+							actions:
+								(Platform.isLinux || Platform.isMacOS || Platform.isWindows)
+									? WindowCaption()
+									: null
+						),
 
 					/* End NavigationAppBar - NavigationView [appBar] */
 
@@ -270,8 +327,19 @@ void main() async
 	WidgetsFlutterBinding.ensureInitialized();
 	await SystemTheme.accentColor.load();
 
+	// Load settings
+	prefs = await SharedPreferences.getInstance();
+	selectedLanguage = (prefs.getString('selectedLanguage') ?? 'en');
+	pinned = (prefs.getStringList('pinned') ?? []);
+	favourites = (prefs.getStringList('favourites') ?? []);
+	windowEffect = (prefs.getString('windowEffect') ?? 'disabled');
+
 	if (Platform.isLinux || Platform.isMacOS || Platform.isWindows)
 	{
+		await flutter_acrylic.Window.initialize();
+		if (Platform.isWindows)
+		{ await flutter_acrylic.Window.hideWindowControls(); }
+
 		await windowManager.ensureInitialized();
 		windowManager.waitUntilReadyToShow(
 			const WindowOptions(
@@ -284,16 +352,19 @@ void main() async
 				await windowManager.focus();
 			}
 		);
+
+		await flutter_acrylic.Window.setEffect(
+			effect: getFunctions.getByString(windowEffect)
+		);
 	}
 	
 	// ask for storage permissions
-//	await Permission.storage.request();
-//	await Permission.manageExternalStorage.request();
+	if (Platform.isAndroid || Platform.isWindows || Platform.isIOS)
+	{
+		await Permission.storage.request();
+		await Permission.manageExternalStorage.request();
+	}
 	
-	prefs = await SharedPreferences.getInstance();
-	selectedLanguage = (prefs.getString('selectedLanguage') ?? 'en');
-	pinned = (prefs.getStringList('pinned') ?? []);
-	favourites = (prefs.getStringList('favourites') ?? []);
 
 	runApp(MainApp());
 }
